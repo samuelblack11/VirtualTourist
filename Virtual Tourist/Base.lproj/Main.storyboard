@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Map View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="MapViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="NAt-Jb-X3B">
+                                <rect key="frame" x="20" y="44" width="374" height="818"/>
+                            </mapView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="NAt-Jb-X3B" secondAttribute="trailing" constant="20" id="QfN-TK-vmv"/>
+                            <constraint firstItem="NAt-Jb-X3B" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="c2C-Ln-sRg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="NAt-Jb-X3B" secondAttribute="bottom" id="cWN-Qe-8QL"/>
+                            <constraint firstItem="NAt-Jb-X3B" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="pOV-G3-VzO"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="mapView" destination="NAt-Jb-X3B" id="ywh-SF-wIf"/>
+                        <segue destination="5dd-uL-Izi" kind="show" identifier="mapToAlbum" id="i1e-Qj-Fby"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-26.086956521739133" y="63.616071428571423"/>
+        </scene>
+        <!--PhotoAlbumViewController-->
+        <scene sceneID="Ip1-nc-4Iq">
+            <objects>
+                <viewController storyboardIdentifier="PhotoAlbumViewController" title="PhotoAlbumViewController" id="5dd-uL-Izi" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="nBB-xG-Im8">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="fkd-NQ-rvI">
+                                <rect key="frame" x="20" y="44" width="374" height="764"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="bP1-BQ-UXL">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="photoViewCell" id="1m0-nI-Opp">
+                                        <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="21q-KC-KtA">
+                                            <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="psV-Uf-1CE">
+                                                    <rect key="frame" x="-56" y="0.0" width="240" height="128"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="imageView">
+                                                        <bool key="isElement" value="YES"/>
+                                                    </accessibility>
+                                                </imageView>
+                                            </subviews>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s2P-j8-j9M">
+                                <rect key="frame" x="20" y="762" width="374" height="46"/>
+                                <accessibility key="accessibilityConfiguration" identifier="newCollectionButton"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Add New Collection"/>
+                                <connections>
+                                    <action selector="newCollectionPressed:" destination="5dd-uL-Izi" eventType="touchUpInside" id="Xi8-eV-p39"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="cQh-PD-cf0"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="cQh-PD-cf0" firstAttribute="trailing" secondItem="fkd-NQ-rvI" secondAttribute="trailing" constant="20" id="KZ7-Y8-TrR"/>
+                            <constraint firstItem="fkd-NQ-rvI" firstAttribute="top" secondItem="cQh-PD-cf0" secondAttribute="top" id="Qtq-ky-ohN"/>
+                            <constraint firstItem="cQh-PD-cf0" firstAttribute="bottom" secondItem="s2P-j8-j9M" secondAttribute="bottom" constant="34" id="hxB-C8-6II"/>
+                            <constraint firstItem="s2P-j8-j9M" firstAttribute="leading" secondItem="cQh-PD-cf0" secondAttribute="leading" constant="20" id="qPb-kH-XZC"/>
+                            <constraint firstItem="fkd-NQ-rvI" firstAttribute="leading" secondItem="cQh-PD-cf0" secondAttribute="leading" constant="20" id="qXg-1w-wUr"/>
+                            <constraint firstItem="cQh-PD-cf0" firstAttribute="trailing" secondItem="s2P-j8-j9M" secondAttribute="trailing" constant="20" id="xaz-he-5cr"/>
+                            <constraint firstItem="fkd-NQ-rvI" firstAttribute="bottom" secondItem="s2P-j8-j9M" secondAttribute="bottom" id="ytc-MC-ldS"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="0Sj-lN-S3R"/>
+                    <connections>
+                        <outlet property="newCollectionButton" destination="s2P-j8-j9M" id="SWI-XB-irt"/>
+                        <outlet property="photoCollectionView" destination="fkd-NQ-rvI" id="Nw9-hm-XA3"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fpi-Fr-uDh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1037.68115942029" y="68.973214285714278"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
