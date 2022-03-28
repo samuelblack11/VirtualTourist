@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2660004927F1272E003099DC /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2660004827F1272E003099DC /* ImageCell.swift */; };
 		267A002D27EA29550089D4EF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A002C27EA29550089D4EF /* AppDelegate.swift */; };
 		267A002F27EA29550089D4EF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A002E27EA29550089D4EF /* SceneDelegate.swift */; };
 		267A003127EA29550089D4EF /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A003027EA29550089D4EF /* MapViewController.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2660004827F1272E003099DC /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		267A002927EA29550089D4EF /* Virtual Tourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual Tourist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		267A002C27EA29550089D4EF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		267A002E27EA29550089D4EF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				267A003527EA29550089D4EF /* Virtual_Tourist.xcdatamodeld */,
 				267A005127ED45D60089D4EF /* PhotoViewCell.swift */,
 				26C01C5A27EFD0F900E300DB /* ContentView.swift */,
+				2660004827F1272E003099DC /* ImageCell.swift */,
 			);
 			path = "Virtual Tourist";
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				26C01C5627EFC3B200E300DB /* Pin+CoreDataClass.swift in Sources */,
 				267A005227ED45D60089D4EF /* PhotoViewCell.swift in Sources */,
 				267A005427EF48170089D4EF /* PhotoAPI.swift in Sources */,
+				2660004927F1272E003099DC /* ImageCell.swift in Sources */,
 				267A004D27EBF12C0089D4EF /* PhotoAlbumViewController.swift in Sources */,
 				267A004B27EBD80E0089D4EF /* DataController.swift in Sources */,
 				267A003127EA29550089D4EF /* MapViewController.swift in Sources */,

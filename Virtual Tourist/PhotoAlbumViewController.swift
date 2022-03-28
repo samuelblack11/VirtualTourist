@@ -9,18 +9,14 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDelegate {
-    
-    
-
-
+class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
 
     @IBOutlet weak var newCollectionButton: UIButton!
     
 
-    @IBOutlet weak var photoCollectionView: UICollectionView!
+    @IBOutlet weak var collectionView: UICollectionView!
     var isDataSaved: Bool = false
-    var flickrPhotos: [FlickrResponse] = []
+    var flickrPhotos: [PhotoResponse] = []
     var fetchedResultsController: NSFetchedResultsController<Photo>!
     var fetchedPinResultsController: NSFetchedResultsController<Pin>!
     var dataController:DataController!
@@ -35,12 +31,11 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     var removePhotos:[IndexPath] = []
     var isRemoveMode:Bool = false
     //var fetchResultController:NSFetchedResultsController<Photo>!
-    @IBOutlet weak var photoViewCell: UICollectionViewCell!
-    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var photoViewCell: ImageCell?
     
     fileprivate func retrievePinsFromCore() {
         // create fetchRequest
-        print("Running retrievePinsFromCore")
+
         let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -51,12 +46,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             try fetchedPinResultsController.performFetch()
             // if there are persisted PIN core data
             if let count = fetchedPinResultsController.fetchedObjects?.count, count > 0 {
-                print("pin count > 0")
+
                 // TODO: Set PIN to the map
                 for pin in fetchedPinResultsController.fetchedObjects! {
                     let location = CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long)
-                    //print("Pin.lat in Retireve Pins from Core:")
-                    //print(pin.lat)
                     let annotation = MKPointAnnotation()
                     annotation.coordinate = location
                 }
@@ -74,7 +67,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     dataController = DataController(modelName: "VirtualTourist")
     dataController.load()
     //PhotoAPI.getPhotos(lat: 25.7617, long: 80.1918, page: 1, perPage: self.flickrPhotos.count, completionHandler: {
-    //print("retrieve pins from core (Photo VC):")
     retrievePinsFromCore()
     //print(Pin)
     print("configure fetch results controller:")
@@ -83,6 +75,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     //print("Get Photos:")
     configureCollectionView()
     newCollectionButton.isEnabled = true
+        
     }
     
     func configureFetchResultsController(){
@@ -91,10 +84,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "photo", ascending: false)
         //let predicate = NSPredicate(format: "pin == %@", pin)
-        print("-----------")
-        print("-----------")
         fetchRequest.sortDescriptors = [sortDescriptor]
-        print(fetchRequest.sortDescriptors)
         //fetchRequest.predicate = predicate
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pins")
         fetchedResultsController.delegate = self
@@ -119,15 +109,15 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     
     func configureCollectionView(){
         //configure UI
-        //photoCollectionView.delegate = self
-        //photoCollectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.dataSource = self
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         let width = UIScreen.main.bounds.width
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.itemSize = CGSize(width: width / 4, height: width / 5)
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        photoCollectionView!.collectionViewLayout = layout
+        collectionView!.collectionViewLayout = layout
     }
     
     
@@ -175,8 +165,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         //get random page number
         self.newCollectionButton.isEnabled = false
         let page = PhotoAPI.getRandomPage()
-        print("Pin.lat:")
-        //print(MapViewController.pinLong)
+        print("Page")
+        print(page)
 
         PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: page, perPage: self.flickrPhotos.count, completionHandler: {
             (responses, error) in
@@ -184,11 +174,12 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
              save new images
             */
             if let responses = responses{
+                print("responses=responses")
                 self.flickrPhotos = responses
                 self.isDataSaved = false
                 self.isNewCollectionPressed = true
                 DispatchQueue.main.async {
-                    self.photoCollectionView.reloadData()
+                    self.collectionView.reloadData()
                 }
             }
         })
@@ -201,10 +192,14 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             return self.flickrPhotos.count
         }    }
     
-    @objc(collectionView:cellForItemAtIndexPath:) func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    @objc func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         //populate cells
-        let cell = self.photoCollectionView.dequeueReusableCell(withReuseIdentifier: "photoViewCell", for: indexPath) as! PhotoViewCell
+        // https://www.hackingwithswift.com/example-code/uikit/how-to-register-a-cell-for-uicollectionview-reuse
+        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "photoViewCell")
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoViewCell", for: indexPath) as! ImageCell
+        print(cell)
         
+        print("cellForItemAt********")
         //check if there are images load them if not then download images
         if isDataSaved{
             self.newCollectionButton.isEnabled = true
@@ -212,16 +207,22 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             let pic = loadPhoto(indexPath: indexPath)
             let imgData = pic!.photo
             let img = UIImage(data: imgData!)
-            cell.flickrImageView.image = img
+            cell.imageView.image = img
         }else{
-            cell.flickrImageView.image = UIImage(named: "placeholder")
+            print("PlaceHolder")
+            cell.imageView.image = UIImage(named: "placeholder")
+            print("IndexPath:")
+            print(indexPath)
+            print("Cell:")
+            print(cell)
+            downloadImagesAndReload(indexPath: indexPath, cell: cell)
             }
         return cell
     }
 
 
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    @nonobjc func numberOfSections(in collectionView: UICollectionView) -> Int {
         if isDataSaved{
             return fetchedResultsController.sections!.count
         }else{
@@ -229,7 +230,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    @nonobjc func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //delete image
         collectionView.deleteItems(at: [indexPath])
         deletePhoto(indexPath: indexPath)
@@ -239,12 +240,13 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
-    func downloadImagesAndReload(indexPath: IndexPath, cell: PhotoViewCell){
+    func downloadImagesAndReload(indexPath: IndexPath, cell: ImageCell){
         //download them
+        print("Attempting Download")
         PhotoAPI.getImageAt(index: indexPath.row, response: self.flickrPhotos, completionHandler: {
             (img, error) in
             if let img = img {
-                cell.flickrImageView.image = img
+                cell.imageView.image = img
                 //save it to memory
                 self.savePhoto(image: img)
                 //check if it's new collection then delete next image in memory
@@ -262,7 +264,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
                     self.isNewCollectionPressed = false
                     self.isDataSaved = true
                     self.configureFetchResultsController() //reload fetch results controller
-                    self.photoCollectionView.reloadData()
+                    self.collectionView.reloadData()
                 }
             }
         })
