@@ -14,7 +14,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
 
     @IBOutlet weak var mapView: MKMapView!
     
-    var dataController: DataController!
     var fetchedResultsController:NSFetchedResultsController<Pin>!
     var pin: Pin!
     var pinLong:Double = 0.0
@@ -27,11 +26,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     // https://knowledge.udacity.com/questions/313110
     override func viewDidLoad() {
         super.viewDidLoad()
-        //let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        //dataController = appDelegate.dataController
-        // Allow for long press to add pins in below lines
-        dataController = DataController(modelName: "VirtualTourist")
-        dataController.load()
+        // Setup ability to add pin using LongPressGestureRecognizer
         let gestureRecognizer = UILongPressGestureRecognizer(
                                       target: self, action:#selector(addPinOnLongPress(gestureRecognizer:)))
             gestureRecognizer.delegate = self
@@ -43,7 +38,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         super.viewWillAppear(animated)
         retrievePinsFromCore()
         mapView.delegate = self
-
     }
 
 
@@ -54,50 +48,44 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
         let latitude = CLLocationDegrees(coordinate.latitude)
         let longitude = CLLocationDegrees(coordinate.longitude)
-        // Add annotation:
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
         annotations.append(annotation)
         addPinToCoreData(lat: latitude, long: longitude)
         setupFetchedResultsController(lat: latitude, long: longitude)
-        try? dataController.viewContext.save()
+        try? DataController.shared.viewContext.save()
 
     }
     
     func addPinToCoreData(lat:Double, long:Double){
-        
-        pin = Pin(context: dataController.viewContext)
+        pin = Pin(context: DataController.shared.viewContext)
         pin.createDate = Date()
         pin.lat = lat
         pin.long = long
-        try? dataController.viewContext.save()
+        try? DataController.shared.viewContext.save()
         print("Saved pin to core data")
     }
     
-    // Deletes the `Pin` at the specified index path
-    func deletePin(at indexPath: IndexPath) {
-        let pinToDelete = fetchedResultsController.object(at: indexPath)
-        dataController.viewContext.delete(pinToDelete)
-        try? dataController.viewContext.save()
-    }
+    //func deletePin(at indexPath: IndexPath) {
+    //    let pinToDelete = fetchedResultsController.object(at: indexPath)
+    //    DataController.shared.viewContext.delete(pinToDelete)
+    //    try? DataController.shared.viewContext.save()
+    //}
     
     
     fileprivate func retrievePinsFromCore() {
-        // create fetchRequest
         print("Running retrievePinsFromCore")
         let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         
         fetchedResultsController.delegate = self
         do {
             try fetchedResultsController.performFetch()
-            // if there are persisted PIN core data
             if let count = fetchedResultsController.fetchedObjects?.count, count > 0 {
                 print("pin count > 0")
-                // TODO: Set PIN to the map
                 for pin in fetchedResultsController.fetchedObjects! {
                     let location = CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long)
                     let annotation = MKPointAnnotation()
@@ -115,9 +103,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     // Adapt Mooskine code to take lat/long
     func setupFetchedResultsController(lat: Double, long: Double) {
-        
-        //fetchedResultsController = nil
-        // create fetchRequest
         let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
         // TODO: Need to  update the predicate
         print("predicate is \(lat) and \(long)")
@@ -132,7 +117,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let sortDescriptor = NSSortDescriptor(key: "createDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pins")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         do {
@@ -162,22 +147,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     {
         // https://knowledge.udacity.com/questions/477492
         let photoVC: PhotoAlbumViewController = storyboard?.instantiateViewController(identifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
-               photoVC.dataController = self.dataController
-        let chosenPin = Pin(context: dataController.viewContext)
         pinLong = (view.annotation!.coordinate.longitude)
         pinLat = (view.annotation!.coordinate.latitude)
-        photoVC.dataController = self.dataController
         let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         do {
             try fetchedResultsController.performFetch()
-            // if there are persisted PIN core data
             if let count = fetchedResultsController.fetchedObjects?.count, count > 0 {
                 print("pin count > 0")
-                // TODO: Set PIN to the map
                 let pins = fetchedResultsController.fetchedObjects!
                 // if selected Pin coordinates match coordinates of pin in core data
                 // Set indexpth equal to first pin instance where lat and long = lat and long of selected pin
@@ -190,7 +170,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
 
                     let tappedPin = pins[indexPath]
                 photoVC.pin = tappedPin
-                photoVC.dataController = self.dataController
                 }
             } catch {
             fatalError("Error when try to fetch the album \(error.localizedDescription)")
@@ -200,11 +179,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
              // fetch the tapped pin from Core Data again
         setupFetchedResultsController(lat: pinLat, long: pinLong)
         performSegue(withIdentifier: "mapToAlbum", sender: self)
-        try! dataController.viewContext.save()
+        try! DataController.shared.viewContext.save()
          }
     
     
-    // This prepare method loads the pin data for the next view controller
+    // Loads the pin data for the next view controller
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let photoVC = segue.destination as? PhotoAlbumViewController {
             let pins = fetchedResultsController.fetchedObjects!
@@ -215,7 +194,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 }
             let tappedPin = pins[indexPath]
             photoVC.pin = tappedPin
-            photoVC.dataController = self.dataController
         }
     }
     

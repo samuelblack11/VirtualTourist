@@ -10,18 +10,22 @@ import CoreData
 
 class DataController {
 
+    // https://knowledge.udacity.com/questions/285614
+    static let shared = DataController()
+    
     let persistenceContainer:NSPersistentContainer
+
+    
 
     var viewContext:NSManagedObjectContext {
         return persistenceContainer.viewContext
     }
     
-    let backgroundContext:NSManagedObjectContext!
+    var backgroundContext: NSManagedObjectContext!
 
-    init(modelName:String) {
-        persistenceContainer = NSPersistentContainer(name: modelName)
+    init() {
+        persistenceContainer = NSPersistentContainer(name: "VirtualTourist")
         backgroundContext = persistenceContainer.newBackgroundContext()
-        //self.container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     }
     
     func configureContexts() {
