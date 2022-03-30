@@ -44,6 +44,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     var annotations = [MKPointAnnotation]()
 
     @objc func addPinOnLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        
+        if gestureRecognizer.state != .began {
+            return
+        }
+        
         let location = gestureRecognizer.location(in: mapView)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
         let latitude = CLLocationDegrees(coordinate.latitude)

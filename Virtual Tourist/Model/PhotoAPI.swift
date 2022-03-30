@@ -26,7 +26,7 @@ class PhotoAPI {
         var URLString: String{
             switch self {
             case .imageCriteria(let lat, let long, let page, let perPage, let contentType):
-                return Endpoints.base + Endpoints.method + "&api_key=\(Endpoints.apiKey)" + "&lat=\(lat)" + "&lon=\(long)" + "&per_page=\(perPage)" + "&format=json&nojsoncallback=1&extras=url_m"
+                return Endpoints.base + Endpoints.method + "&api_key=\(Endpoints.apiKey)" + "&lat=\(lat)" + "&lon=\(long)"+"&page=\(page)" + "&per_page=\(perPage)" + "&format=json&nojsoncallback=1&extras=url_m"
                 }
             }
             var url: URL{
@@ -40,11 +40,10 @@ class PhotoAPI {
     
     class func getPhotos(lat: Double, long: Double, page: Int, perPage: Int, completionHandler: @escaping ([PhotoResponse]?,Error?) -> Void) {
         print("calling getPhotos....")
-        print("LAT:_________")
-        print(lat)
-        print("---------")
-        var url = Endpoints.imageCriteria(lat: lat, long: long, page: page, perPage: 8, contentType: 1).url
-        var request = URLRequest(url: Endpoints.imageCriteria(lat: lat, long: long, page: page, perPage: 4, contentType: 1).url)
+        // Randomly select page # 1-10
+        let pageNumber = Int.random(in: 0...5)
+        var url = Endpoints.imageCriteria(lat: lat, long: long, page: pageNumber, perPage: 20, contentType: 1).url
+        var request = URLRequest(url: Endpoints.imageCriteria(lat: lat, long: long, page: page, perPage: 20, contentType: 1).url)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         let task = URLSession.shared.dataTask(with: request, completionHandler: {(data,response,error) in
@@ -63,6 +62,7 @@ class PhotoAPI {
                 print("Json:****")
                 let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                 print(json)
+                print("Json:****")
                 // Tru to decode image response from the data
                 let response = try JSONDecoder().decode(ImageResponse.self, from: data!)
                 print("Response************")
@@ -85,7 +85,35 @@ class PhotoAPI {
     }
     
     // Gets image at specified index within PhotoResponse
-    class func getImageAt(index: Int,  response: [PhotoResponse], completionHandler: @escaping (UIImage?,Error?) -> Void){
+    class func getImageAt( imagePath:String, completionHandler: @escaping (_ imageData: Data?, _ errorString: String?) -> Void){
+        let session = URLSession.shared
+        let imgURL = NSURL(string: imagePath)
+        let request: NSURLRequest = NSURLRequest(url: imgURL! as URL)
+        let task = session.dataTask(with: request as URLRequest) {data, response, downloadError in
+            if downloadError != nil {
+                completionHandler(nil, "Could not download image \(imagePath)")
+            } else {
+                completionHandler(data, nil)
+            }
+        }
+        task.resume()
+    }
+    
+    
+   // PhotoAPI.getImageAt(imagePath: indexPath, completionHandler: do {
+    //    DispatchQueue.main.async {
+    //        completionHandler(UIImage(data:imgData), nil))
+     //   } catch {
+      //      DispatchQueue.main.async {
+       //         completionHandler(nil, error)
+        //    }
+        //}
+   // }
+                        
+    
+    // Gets image at specified index within PhotoResponse
+    class func getImageAt2(index: Int,  response: [PhotoResponse], completionHandler: @escaping (UIImage?,Error?) -> Void){
+        //cell.backgroundColor = UIColor.darkGray
         let imgURL = URL(string: response[index].url_m)
         DispatchQueue.global(qos: .userInteractive).async {
             // Download image

@@ -13,6 +13,11 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
 
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
+    
+    
+    
+    
+    
     var isDataSaved: Bool = false
     var flickrPhotos: [PhotoResponse] = []
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -48,10 +53,18 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         
     }
     
-    
+    func spinActivityIndicator(_ searchingForPhotos: Bool) {
+        if searchingForPhotos {
+            self.photoViewCell?.activityIndicator.startAnimating()
+        } else {
+            self.photoViewCell?.activityIndicator.stopAnimating()
+            self.photoViewCell?.activityIndicator.isHidden = true
+        }
+    }
     
     override func viewDidLoad() {
     super.viewDidLoad()
+    self.photoViewCell?.activityIndicator.isHidden = true
     retrievePinsFromCore()
     print("configure fetch results controller:")
     configureFetchResultsController()
@@ -85,7 +98,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             self.newCollectionButton.isEnabled = true
             
         }else{
-            PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: 1, perPage: self.flickrPhotos.count, completionHandler: {
+            let pageNumber = Int.random(in: 0...10)
+            PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: pageNumber, perPage: self.flickrPhotos.count, completionHandler: {
                 (responses, error) in
                 if let responses = responses{
                     print("responses=responses")
@@ -165,7 +179,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     @IBAction func newCollectionPressed(_ sender:Any){
         // Fetch new images from Flickr
         self.newCollectionButton.isEnabled = false
-        PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: 1, perPage: self.flickrPhotos.count, completionHandler: {
+        let pageNumber = Int.random(in: 0...10)
+        PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: pageNumber, perPage: self.flickrPhotos.count, completionHandler: {
             (responses, error) in
             if let responses = responses{
                 print("responses=responses")
@@ -191,11 +206,13 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         // https://www.hackingwithswift.com/example-code/uikit/how-to-register-a-cell-for-uicollectionview-reuse
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoViewCell", for: indexPath) as! ImageCell
         print("cellForItemAt********")
+        cell.backgroundColor = UIColor.darkGray
         if isDataSaved{
             self.newCollectionButton.isEnabled = true
             // Load photos to the cells
             let pic = loadPhoto(indexPath: indexPath)
             let imgData = pic!.photo
+            cell.backgroundColor = UIColor.white
             let img = UIImage(data: imgData!)
             cell.imageView.image = img
         }else{
@@ -206,6 +223,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             print("Cell:")
             print(cell)
             downloadImagesAndReload(indexPath: indexPath, cell: cell)
+            cell.backgroundColor = UIColor.white
             }
         return cell
     }
@@ -220,7 +238,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
-    @nonobjc func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deleteItems(at: [indexPath])
         deletePhoto(indexPath: indexPath)
         DispatchQueue.main.async {
@@ -229,14 +248,18 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     func downloadImagesAndReload(indexPath: IndexPath, cell: ImageCell){
+        //spinActivityIndicator(true)
+        //cell.backgroundColor = UIColor.darkGray
         print("Attempting Download")
-        PhotoAPI.getImageAt(index: indexPath.row, response: self.flickrPhotos, completionHandler: {
+        PhotoAPI.getImageAt2(index: indexPath.row, response: self.flickrPhotos, completionHandler: {
             (img, error) in
+            cell.backgroundColor = UIColor.darkGray
             if let img = img {
                 cell.imageView.image = img
                 self.savePhoto(image: img)
                 if(indexPath.row < self.fetchedResultsController.fetchedObjects!.count - 1){
                     if(self.isNewCollectionPressed){
+                        //self.spinActivityIndicator(false)
                         print("isNewCollectionPressed")
                         let newIndex = IndexPath(row: indexPath.row + 1, section: indexPath.section)
                         self.deletePhoto(indexPath: newIndex)
@@ -250,6 +273,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
                     self.collectionView.reloadData()
                 }
             }
+            cell.backgroundColor = UIColor.white
         })
     }
 }
