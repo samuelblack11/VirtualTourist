@@ -48,7 +48,6 @@ class PhotoAPI {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         let task = URLSession.shared.dataTask(with: request, completionHandler: {(data,response,error) in
             // Print out Data in String format
-            print("Data:")
             print(String(data: data!, encoding: .utf8) as Any)
             // if error is not none
             if error != nil {
@@ -59,16 +58,9 @@ class PhotoAPI {
             }
             do{
                 //Decode response from JSON format
-                print("Json:****")
                 let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                print(json)
-                print("Json:****")
                 // Tru to decode image response from the data
                 let response = try JSONDecoder().decode(ImageResponse.self, from: data!)
-                print("Response************")
-                print(response)
-                print("---------------------")
-                print("Response************")
                 // pass response.photos.photo as [FlickrResponse]. This is an array of photos, and compeltes the function
                 DispatchQueue.main.async {
                     completionHandler(response.photos.photo, nil)
@@ -100,20 +92,8 @@ class PhotoAPI {
     }
     
     
-   // PhotoAPI.getImageAt(imagePath: indexPath, completionHandler: do {
-    //    DispatchQueue.main.async {
-    //        completionHandler(UIImage(data:imgData), nil))
-     //   } catch {
-      //      DispatchQueue.main.async {
-       //         completionHandler(nil, error)
-        //    }
-        //}
-   // }
-                        
-    
-    // Gets image at specified index within PhotoResponse
+        // Gets image at specified index within PhotoResponse
     class func getImageAt2(index: Int,  response: [PhotoResponse], completionHandler: @escaping (UIImage?,Error?) -> Void){
-        //cell.backgroundColor = UIColor.darkGray
         let imgURL = URL(string: response[index].url_m)
         DispatchQueue.global(qos: .userInteractive).async {
             // Download image
@@ -129,6 +109,49 @@ class PhotoAPI {
             }
         }
     }
+    
+    
+    class func getImageAt3(index: Int,  response: [PhotoResponse], completionHandler: @escaping (UIImage?,Error?) -> Void){
+        let imgURL = URL(string: response[index].url_m)
+        DispatchQueue.global(qos: .userInteractive).async {
+            // Download image
+            do{
+                let imgData = try Data(contentsOf: imgURL!)
+                DispatchQueue.main.async {
+                    completionHandler(UIImage(data: imgData), nil)
+                }
+            }catch{
+                DispatchQueue.main.async {
+                    completionHandler(nil, error)
+                }
+            }
+        }
+    }
+    
+    func downloadImage2( imagePath:String, completionHandler: @escaping (_ imageData: Data?, _ errorString: String?) -> Void){
+            let session = URLSession.shared
+            let imgURL = NSURL(string: imagePath)
+            let request: NSURLRequest = NSURLRequest(url: imgURL! as URL)
+
+            let task = session.dataTask(with: request as URLRequest) {data, response, downloadError in
+
+                if downloadError != nil {
+                    completionHandler(nil, "Could not download image \(imagePath)")
+                } else {
+
+                    completionHandler(data, nil)
+                }
+            }
+
+            task.resume()
+        }
+    
+    
+    
+    
+    
+    
+    
     
     
 }

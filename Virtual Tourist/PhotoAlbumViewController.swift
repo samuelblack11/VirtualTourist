@@ -14,10 +14,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    
-    
-    
-    
     var isDataSaved: Bool = false
     var flickrPhotos: [PhotoResponse] = []
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -55,6 +51,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     
     func spinActivityIndicator(_ searchingForPhotos: Bool) {
         if searchingForPhotos {
+            self.photoViewCell?.activityIndicator.isHidden = false
             self.photoViewCell?.activityIndicator.startAnimating()
         } else {
             self.photoViewCell?.activityIndicator.stopAnimating()
@@ -66,7 +63,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     super.viewDidLoad()
     self.photoViewCell?.activityIndicator.isHidden = true
     retrievePinsFromCore()
-    print("configure fetch results controller:")
     configureFetchResultsController()
     configureCollectionView()
     newCollectionButton.isEnabled = true
@@ -102,7 +98,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: pageNumber, perPage: self.flickrPhotos.count, completionHandler: {
                 (responses, error) in
                 if let responses = responses{
-                    print("responses=responses")
                     self.flickrPhotos = responses
                     self.isDataSaved = false
                     self.isNewCollectionPressed = true
@@ -116,8 +111,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
-    
-    
     func configureCollectionView(){
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -130,16 +123,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         collectionView!.collectionViewLayout = layout
     }
     
-    
-    
-    
-    
     override func viewDidDisappear(_ animated: Bool) {
          super.viewDidDisappear(animated)
          fetchedResultsController = nil
      }
-    
-
     
     func loadPhoto(indexPath: IndexPath)->Photo?{
         return fetchedResultsController.object(at: indexPath)
@@ -164,7 +151,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
-    
     @objc func deletePhoto(indexPath: IndexPath) {
         let photo = fetchedResultsController.object(at: indexPath)
         DataController.shared.viewContext.delete(photo)
@@ -183,7 +169,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         PhotoAPI.getPhotos(lat: pin.lat, long: pin.long, page: pageNumber, perPage: self.flickrPhotos.count, completionHandler: {
             (responses, error) in
             if let responses = responses{
-                print("responses=responses")
                 self.flickrPhotos = responses
                 self.isDataSaved = false
                 self.isNewCollectionPressed = true
@@ -218,17 +203,11 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }else{
             print("PlaceHolder")
             cell.imageView.image = UIImage(named: "placeholder")
-            print("IndexPath:")
-            print(indexPath)
-            print("Cell:")
-            print(cell)
             downloadImagesAndReload(indexPath: indexPath, cell: cell)
             cell.backgroundColor = UIColor.white
             }
         return cell
     }
-
-
     
     @nonobjc func numberOfSections(in collectionView: UICollectionView) -> Int {
         if isDataSaved{
@@ -248,33 +227,30 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     func downloadImagesAndReload(indexPath: IndexPath, cell: ImageCell){
-        //spinActivityIndicator(true)
-        //cell.backgroundColor = UIColor.darkGray
+        spinActivityIndicator(true)
         print("Attempting Download")
-        PhotoAPI.getImageAt2(index: indexPath.row, response: self.flickrPhotos, completionHandler: {
-            (img, error) in
-            cell.backgroundColor = UIColor.darkGray
-            if let img = img {
-                cell.imageView.image = img
-                self.savePhoto(image: img)
-                if(indexPath.row < self.fetchedResultsController.fetchedObjects!.count - 1){
-                    if(self.isNewCollectionPressed){
-                        //self.spinActivityIndicator(false)
-                        print("isNewCollectionPressed")
-                        let newIndex = IndexPath(row: indexPath.row + 1, section: indexPath.section)
-                        self.deletePhoto(indexPath: newIndex)
-                    }
-                }
-                else{
-                    print("isNewCollectionPressed false")
-                    self.isNewCollectionPressed = false
-                    self.isDataSaved = true
-                    self.configureFetchResultsController()
-                    self.collectionView.reloadData()
-                }
-            }
-            cell.backgroundColor = UIColor.white
-        })
+        PhotoAPI.getImageAt3(index: indexPath.row, response: self.flickrPhotos, completionHandler: {
+                                (img, error) in
+                                if let img = img {
+                                    cell.imageView.image = img
+                                    self.savePhoto(image: img)
+                                    if(indexPath.row < self.fetchedResultsController.fetchedObjects!.count - 1){
+                                        if(self.isNewCollectionPressed){
+                                            //self.spinActivityIndicator(false)
+                                            print("isNewCollectionPressed")
+                                            let newIndex = IndexPath(row: indexPath.row + 1, section: indexPath.section)
+                                            self.deletePhoto(indexPath: newIndex)
+                                        }
+                                    }
+                                    else{
+                                        print("isNewCollectionPressed false")
+                                        self.isNewCollectionPressed = false
+                                        self.isDataSaved = true
+                                        self.configureFetchResultsController()
+                                        self.collectionView.reloadData()
+                                    }
+                                }
+            self.spinActivityIndicator(false)
+                            })
     }
 }
-

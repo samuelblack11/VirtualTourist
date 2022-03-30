@@ -71,6 +71,10 @@
                                                         <bool key="isElement" value="YES"/>
                                                     </accessibility>
                                                 </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" restorationIdentifier="activityIndicator" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="IGY-9w-ZIM" userLabel="activityIndicator">
+                                                    <rect key="frame" x="59" y="54" width="20" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                </activityIndicatorView>
                                             </subviews>
                                         </collectionViewCellContentView>
                                         <size key="customSize" width="139" height="128"/>
